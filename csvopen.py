@@ -46,36 +46,37 @@ def print_values(config, opts):
 
 def read_csv(csv_files, oerp):
     for csv_name in csv_files: 
-        print ' ---- generating the xml of %s file' % (csv_name,)
         lines = csv.reader(open(csv_name))
         field_names = lines.next()
         field_names.remove('model')
         fields_type = lines.next()
 
         ir_model_data_obj = oerp.get('ir.model.data')
-        res_company_obj = oerp.get('res.company')
+
+        datas = []
 
         for line in lines:
             xml_id = line.pop(0)
             model_str = line.pop(0)
             model_obj = oerp.get(model_str)
-            datas = []
-            #~company_xml = line.get('company_id').split('.')[-1]
-            #~company_id = ir_model_data_obj.search(
-            #~        [('name','=',company_xml),('model','=','res.company')] )
-            datas.append([xml_id, line[0], line[1]])
-            print model_obj.import_data(field_names, datas, mode='init')
 
-#~        for line in lines:
-#~            model_obj = oerp.get(line['model'])
-#~            for field_name in field_names:
-#~                if line[field_name]:
-#~                    print line[field_name]
+            #pdb.set_trace()
 
+            line.insert(0, xml_id) 
+            datas.append(line)
 
+        for field in field_names:
+            field = field.split(':')[0]
+            if field != 'id' and field != 'model':
+                tipo = model_obj.__dict__['_browse_class'].__dict__['__osv__'].get('columns').get(field).__dict__.get('type')
+                
+                if tipo == 'many2one':
+                    relation = model_obj.__dict__['_browse_class'].__dict__['__osv__'].get('columns').get(field).__dict__.get('relation')
+                    print 'campo: ' + field + ', tipo: ' + tipo + ', relation: ' + relation
+                else:
+                    print 'campo: ' + field + ', tipo: ' + tipo
 
-
-#def convert_csv_import
+        print model_obj.import_data(field_names, datas, mode='init')
 
 def main(config, opts):
     #print_values(config, opts)
