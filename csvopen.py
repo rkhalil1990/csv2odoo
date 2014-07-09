@@ -82,6 +82,10 @@ def _get_xml_id(field_id, relation_model_str, ir_model_data_obj):
         xml_id_str = '__export__.'+n
     return xml_id_str
 
+def error_value_not_found(field_search, value):
+    raise Exception(('Field "%s": An associated value was not found, Value "%s"') %
+            (field_search,value) )
+
 def transform_csv_info(field, tipo, csv_type, value, model_obj, ir_model_data_obj, oerp):
     """
     Transform the information received from the csv, and then find the xml id calling _get_xml_id
@@ -106,8 +110,7 @@ def transform_csv_info(field, tipo, csv_type, value, model_obj, ir_model_data_ob
                 if field_id:
                     field_id = field_id[0]
                 else:
-                    print "Field %s: An associated value was not found, Value %s"%(field_search,value)
-                    exit()
+                    error_value_not_found(field_search, value)
                 xml_id_str = _get_xml_id(field_id, relation_model_str, ir_model_data_obj)
                 return xml_id_str
             elif tipo in ('many2many', 'one2many'):
@@ -118,8 +121,7 @@ def transform_csv_info(field, tipo, csv_type, value, model_obj, ir_model_data_ob
                     if field_id:
                         field_id = field_id[0]
                     else:
-                        print "Field %s: An associated value was not found, Value %s"%(field_search,value)
-                        exit()
+                        error_value_not_found(field_search, value)
                     xml_str = _get_xml_id(field_id, relation_model_str, ir_model_data_obj)
                     xml_id_str = xml_id_str + xml_str + ','
                 return xml_id_str[:-1]
@@ -157,10 +159,15 @@ def read_csv(csv_files, oerp):
                                 ir_model_data_obj, oerp)
                         data[i] = xml_id
 
-        #pdb.set_trace()
-        print datas
-        print model_obj.import_data(field_names, datas, mode='init', current_module='__export__')
-        print ""
+        #print datas
+        result, rows, warning_msg, dummy = model_obj.import_data(field_names, datas, mode='init', current_module='__export__')
+        #print [result, rows, warning_msg, dummy]
+        if result < 0:
+            # Report failed import and abort module install
+            raise Exception(('Module loading %s failed: file %s could not be processed:\n %s') %
+                    ('', csv_name, warning_msg))
+        else:
+            print "It's OK\n"
 
 def main(config, opts):
     #print_values(config, opts)
