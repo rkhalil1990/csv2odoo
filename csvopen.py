@@ -92,7 +92,7 @@ def transform_csv_info(field, tipo, csv_type, value, model_obj, ir_model_data_ob
         return value
     elif tipo in ('char', 'binary', 'float', 'text', 'selection', 'reference'):
         return value
-    elif tipo in ('many2one'):
+    elif tipo in ('many2one', 'many2many', 'one2many'):
         csv_type = csv_type.split(';')
         if csv_type[0] == 'ref':
             return value
@@ -101,56 +101,28 @@ def transform_csv_info(field, tipo, csv_type, value, model_obj, ir_model_data_ob
             relation_model_str = model_obj.__dict__['_browse_class'].\
                     __dict__['__osv__'].get('columns').get(field).__dict__.get('relation')
             relation_model_obj = oerp.get(relation_model_str)
-            field_id = relation_model_obj.search([(field_search,'=',value)])
-            if field_id:
-                field_id = field_id[0]
-            else:
-                print "Field %s: An associated value was not found, Value %s"%(field_search,value)
-                exit()
-            xml_id_str = _get_xml_id(field_id, relation_model_str, ir_model_data_obj)
-            return xml_id_str
-    elif tipo == 'many2many':
-        csv_type = csv_type.split(';')
-        if csv_type[0] == 'ref':
-            return value
-        elif csv_type[0] == 'search':
-            field_search = csv_type[1]
-            relation_model_str = model_obj.__dict__['_browse_class'].\
-                    __dict__['__osv__'].get('columns').get(field).__dict__.get('relation')
-            relation_model_obj = oerp.get(relation_model_str)
-            values = value.split(';')
-            xml_id_str = ''
-            for value in values:
+            if tipo in ('many2one'):
                 field_id = relation_model_obj.search([(field_search,'=',value)])
                 if field_id:
                     field_id = field_id[0]
                 else:
                     print "Field %s: An associated value was not found, Value %s"%(field_search,value)
                     exit()
-                xml_str = _get_xml_id(field_id, relation_model_str, ir_model_data_obj)
-                xml_id_str = xml_id_str + xml_str + ','
-            return xml_id_str[:-1]
-    elif tipo == 'one2many':
-        csv_type = csv_type.split(';')
-        if csv_type[0] == 'ref':
-            return value
-        elif csv_type[0] == 'search':
-            field_search = csv_type[1]
-            relation_model_str = model_obj.__dict__['_browse_class'].\
-                    __dict__['__osv__'].get('columns').get(field).__dict__.get('relation')
-            relation_model_obj = oerp.get(relation_model_str)
-            values = value.split(';')
-            xml_id_str = ''
-            for value in values:
-                field_id = relation_model_obj.search([(field_search,'=',value)])
-                if field_id:
-                    field_id = field_id[0]
-                else:
-                    print "Field %s: An associated value was not found, Value %s"%(field_search,value)
-                    exit()
-                xml_str = _get_xml_id(field_id, relation_model_str, ir_model_data_obj)
-                xml_id_str = xml_id_str + xml_str + ','
-            return xml_id_str[:-1]
+                xml_id_str = _get_xml_id(field_id, relation_model_str, ir_model_data_obj)
+                return xml_id_str
+            elif tipo in ('many2many', 'one2many'):
+                values = value.split(';')
+                xml_id_str = ''
+                for value in values:
+                    field_id = relation_model_obj.search([(field_search,'=',value)])
+                    if field_id:
+                        field_id = field_id[0]
+                    else:
+                        print "Field %s: An associated value was not found, Value %s"%(field_search,value)
+                        exit()
+                    xml_str = _get_xml_id(field_id, relation_model_str, ir_model_data_obj)
+                    xml_id_str = xml_id_str + xml_str + ','
+                return xml_id_str[:-1]
     elif tipo in ('function', 'related', 'property'):
         return value
 
