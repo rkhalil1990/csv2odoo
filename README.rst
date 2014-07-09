@@ -1,18 +1,15 @@
-Para ver el ejemplo
--------------------
+Correr el ejemplo
+-----------------
 
-Instalar modulos: **account_accountant** y **hr**
-Configurar nombre de BD, usuario y password en archivo config.ini (Dejar variable csv como está)
-Correr el script python csvopen.py
+- Instalar modulos: **account_accountant** y **hr**.
+- Configurar: nombre de BD, usuario y password en archivo config.ini (Dejar variable csv como está).
+- Correr el script: **python csvopen.py.**
 
 TO DO
 -----
 
 #. Cuando el csv tiene varios campos y en la fila de los datos no se completan
    los delimitadores (,) ocurre un error.
-
-#. Hacer un buscador de referencia basandose en lo que quiera el usuario en el
-   csv. Es decir, search;name;model.
 
 Errores
 -------
