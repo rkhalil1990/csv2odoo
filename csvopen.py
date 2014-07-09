@@ -47,55 +47,67 @@ def print_values(config, opts):
 def get_field_type(field, model_obj):
     return model_obj.__dict__['_browse_class'].__dict__['__osv__'].get('columns').get(field).__dict__.get('type')
 
-def get_xml_id(field, tipo, csv_type, value, model_obj, ir_model_data_obj, oerp):
+def _get_xml_id(field_id, relation_model_str, ir_model_data_obj):
+    """
+    Returns xml id of object to get
+    @param field_id: id of the object to which you want to find the xml id 
+    @param relation_model_str: model of the object to which you want to find the xml id
+    @param ir_model_data_obj: object of ids xml table
+    """
+    #_get_xml_id openerp/osv/orm.py +1125
+    xml_id = ir_model_data_obj.search([('model', '=', relation_model_str), ('res_id',
+        '=', field_id)])
+    if len(xml_id):
+        d = ir_model_data_obj.read(xml_id, ['name', 'module'])[0]
+        if d['module']:
+            xml_id_str = '%s.%s' % (d['module'], d['name'])
+        else:
+            xml_id_str = d['name']
 
-    xml_id_str = False
-    if tipo == 'many2one':
-        #pdb.set_trace()
+    else:
+        postfix = 0
+        while True:
+            n = relation_model_str+'_'+str(field_id) + (postfix and ('_'+str(postfix)) or '' )
+            if not ir_model_data_obj.search([('name', '=', n)]):
+                break
+            postfix += 1
+        ir_model_data_obj.create({
+            'name': n,
+            'model': relation_model_str,
+            'res_id': field_id,
+            'module': '__export__',
+        })
+        xml_id_str = '__export__.'+n
+    return xml_id_str
+
+def transform_csv_info(field, tipo, csv_type, value, model_obj, ir_model_data_obj, oerp):
+    """
+    Transform the information received from the csv, and then find the xml id calling _get_xml_id
+    """
+
+    if tipo in ('boolean', 'integer', 'date', 'datetime', 'time'):
+        #Revisar correcta sintaxis
+        return value
+    elif tipo in ('char', 'binary', 'float', 'text', 'selection', 'reference'):
+        return value
+    elif tipo == 'many2one':
         csv_type = csv_type.split(';')
         if csv_type[0] == 'ref':
             return value
         elif csv_type[0] == 'search':
-            #pdb.set_trace()
             field_search = csv_type[1]
-            relation_model_str = model_obj.__dict__['_browse_class'].__dict__['__osv__'].get('columns').get(field).__dict__.get('relation')
-            print 'campo: ' + field + ', tipo: ' + tipo + ', relation: ' + relation_model_str
+            relation_model_str = model_obj.__dict__['_browse_class'].\
+                    __dict__['__osv__'].get('columns').get(field).__dict__.get('relation')
             relation_model_obj = oerp.get(relation_model_str)
             field_id = relation_model_obj.search([(field_search,'=',value)])[0]
-
-            #_get_xml_id openerp/osv/orm.py +1125
-            xml_id = ir_model_data_obj.search([('model', '=', relation_model_str), ('res_id',
-                '=', field_id)])
-            if len(xml_id):
-                d = ir_model_data_obj.read(xml_id, ['name', 'module'])[0]
-                if d['module']:
-                    xml_id_str = '%s.%s' % (d['module'], d['name'])
-                else:
-                    xml_id_str = d['name']
-
-            else:
-                postfix = 0
-                while True:
-                    n = relation_model_str+'_'+str(field_id) + (postfix and ('_'+str(postfix)) or '' )
-                    if not ir_model_data_obj.search([('name', '=', n)]):
-                        break
-                    postfix += 1
-                ir_model_data_obj.create({
-                    'name': n,
-                    'model': relation_model_str,
-                    'res_id': field_id,
-                    'module': '__export__',
-                })
-                xml_id_str = '__export__.'+n
-            #_get_xml_id END
-
+            xml_id_str = _get_xml_id(field_id, relation_model_str, ir_model_data_obj)
             return xml_id_str
-    elif tipo == 'char':
+    elif tipo == 'one2many':
         return value
-    elif tipo == 'date':
-        #Revisar correcta sintaxis del date
-        print value
-
+    elif tipo == 'many2many':
+        return value
+    elif tipo in ('function', 'related', 'property'):
+        return value
 
 def read_csv(csv_files, oerp):
     for csv_name in csv_files: 
@@ -125,7 +137,7 @@ def read_csv(csv_files, oerp):
                     if field not in ('id', 'model'):
                         tipo = get_field_type(field, model_obj)
                        
-                        xml_id = get_xml_id(field, tipo, fields_type[i], data[i], model_obj,
+                        xml_id = transform_csv_info(field, tipo, fields_type[i], data[i], model_obj,
                                 ir_model_data_obj, oerp)
                         data[i] = xml_id
 
