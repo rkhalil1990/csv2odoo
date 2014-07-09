@@ -1,0 +1,5 @@
+id,model,name,date,type,account_id:id,statement_id:id
+str,str,str,str,str,search;code,search;name
+account_bank_statement_line_001,account.bank.statement.line,line1,2014-09-07,general,0001,Bank2
+account_bank_statement_line_002,account.bank.statement.line,line2,2014-09-07,customer,0001,Bank2
+account_bank_statement_line_003,account.bank.statement.line,line3,2014-09-07,supplier,0001,Bank2

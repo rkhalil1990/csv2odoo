@@ -131,7 +131,26 @@ def transform_csv_info(field, tipo, csv_type, value, model_obj, ir_model_data_ob
                 xml_id_str = xml_id_str + xml_str + ','
             return xml_id_str[:-1]
     elif tipo == 'one2many':
-        return value
+        csv_type = csv_type.split(';')
+        if csv_type[0] == 'ref':
+            return value
+        elif csv_type[0] == 'search':
+            field_search = csv_type[1]
+            relation_model_str = model_obj.__dict__['_browse_class'].\
+                    __dict__['__osv__'].get('columns').get(field).__dict__.get('relation')
+            relation_model_obj = oerp.get(relation_model_str)
+            values = value.split(';')
+            xml_id_str = ''
+            for value in values:
+                field_id = relation_model_obj.search([(field_search,'=',value)])
+                if field_id:
+                    field_id = field_id[0]
+                else:
+                    print "Field %s: An associated value was not found, Value %s"%(field_search,value)
+                    exit()
+                xml_str = _get_xml_id(field_id, relation_model_str, ir_model_data_obj)
+                xml_id_str = xml_id_str + xml_str + ','
+            return xml_id_str[:-1]
     elif tipo in ('function', 'related', 'property'):
         return value
 
@@ -153,7 +172,6 @@ def read_csv(csv_files, oerp):
             model_obj = oerp.get(model_str)
 
             datas.append(line)
-
         for data in datas:
             for i in xrange(0, len(field_names)):
                 #Preguntar aqui de que modo viene la informacion para poder buscar el xml_id que
@@ -163,7 +181,6 @@ def read_csv(csv_files, oerp):
                     field = field.split(':')[0]
                     if field not in ('id', 'model'):
                         tipo = get_field_type(field, model_obj)
-                       
                         xml_id = transform_csv_info(field, tipo, fields_type[i], data[i], model_obj,
                                 ir_model_data_obj, oerp)
                         data[i] = xml_id

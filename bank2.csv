@@ -1,0 +1,3 @@
+id,model,name,journal_id:id,date,period_id:id,line_ids:id
+str,str,str,search;code,str,search;code,search;name
+account_bank_statement_001,account.bank.statement,ReferenciaBank,journalbank,2014-09-07,07/2014,line1;line2,
