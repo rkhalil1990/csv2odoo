@@ -8,6 +8,7 @@ import pdb
 
 variables = ['server', 'port', 'timeout', 'database', 'user', 'passwd', 'csv']
 
+
 class MySchema(schema.Schema):
 
     server = schema.StringOption(
@@ -27,7 +28,7 @@ class MySchema(schema.Schema):
     passwd = schema.StringOption(
         help='Password to use fot the connection')
     csv = schema.ListOption(
-        item = schema.StringOption(),
+        item=schema.StringOption(),
         help='CSV File to read')
 
 
@@ -40,14 +41,16 @@ def print_values(config, opts):
         value = values.get(opt)
         if value != option.default:
             print "%s option has been configured with value: %s" % (opt,
-                value)
+                                                                    value)
         else:
             print "%s option has default value: %s" % (opt, option.default)
 
+
 def get_field_type(field, model_obj):
     return model_obj.__dict__['_browse_class'].\
-            __dict__['__osv__'].get('columns').get(field).\
-            __dict__.get('type')
+        __dict__['__osv__'].get('columns').get(field).\
+        __dict__.get('type')
+
 
 def _get_xml_id(field_id, relation_model_str, ir_model_data_obj):
     """
@@ -57,8 +60,9 @@ def _get_xml_id(field_id, relation_model_str, ir_model_data_obj):
     @param ir_model_data_obj: object of ids xml table
     """
     #_get_xml_id openerp/osv/orm.py +1125
-    xml_id = ir_model_data_obj.search([('model', '=', relation_model_str), ('res_id',
-        '=', field_id)])
+    xml_id = ir_model_data_obj.search(
+        [('model', '=', relation_model_str), ('res_id',
+                                              '=', field_id)])
     if len(xml_id):
         d = ir_model_data_obj.read(xml_id, ['name', 'module'])[0]
         if d['module']:
@@ -69,7 +73,8 @@ def _get_xml_id(field_id, relation_model_str, ir_model_data_obj):
     else:
         postfix = 0
         while True:
-            n = relation_model_str+'_'+str(field_id) + (postfix and ('_'+str(postfix)) or '' )
+            n = relation_model_str + '_' + \
+                str(field_id) + (postfix and ('_' + str(postfix)) or '')
             if not ir_model_data_obj.search([('name', '=', n)]):
                 break
             postfix += 1
@@ -79,12 +84,15 @@ def _get_xml_id(field_id, relation_model_str, ir_model_data_obj):
             'res_id': field_id,
             'module': '__export__',
         })
-        xml_id_str = '__export__.'+n
+        xml_id_str = '__export__.' + n
     return xml_id_str
 
+
 def error_value_not_found(field_search, value):
-    raise Exception(('Field "%s": An associated value was not found, Value "%s"') %
-            (field_search,value) )
+    raise Exception(
+        ('Field "%s": An associated value was not found, Value "%s"') %
+        (field_search, value))
+
 
 def transform_csv_info(field, tipo, csv_type, value, model_obj, ir_model_data_obj, oerp):
     """
@@ -92,7 +100,7 @@ def transform_csv_info(field, tipo, csv_type, value, model_obj, ir_model_data_ob
     """
 
     if tipo in ('boolean', 'integer', 'date', 'datetime', 'time'):
-        #Revisar correcta sintaxis
+        # Revisar correcta sintaxis
         return value
     elif tipo in ('char', 'binary', 'float', 'text', 'selection', 'reference'):
         return value
@@ -103,39 +111,45 @@ def transform_csv_info(field, tipo, csv_type, value, model_obj, ir_model_data_ob
         elif csv_type[0] == 'search':
             field_search = csv_type[1]
             relation_model_str = model_obj.__dict__['_browse_class'].\
-                    __dict__['__osv__'].get('columns').get(field).__dict__.get('relation')
+                __dict__['__osv__'].get('columns').get(
+                    field).__dict__.get('relation')
             relation_model_obj = oerp.get(relation_model_str)
             if tipo in ('many2one'):
-                field_id = relation_model_obj.search([(field_search,'=',value)])
+                field_id = relation_model_obj.search(
+                    [(field_search, '=', value)])
                 if field_id:
                     field_id = field_id[0]
                 else:
                     error_value_not_found(field_search, value)
-                xml_id_str = _get_xml_id(field_id, relation_model_str, ir_model_data_obj)
+                xml_id_str = _get_xml_id(
+                    field_id, relation_model_str, ir_model_data_obj)
                 return xml_id_str
             elif tipo in ('many2many', 'one2many'):
                 values = value.split(';')
                 xml_id_str = ''
                 for value in values:
-                    field_id = relation_model_obj.search([(field_search,'=',value)])
+                    field_id = relation_model_obj.search(
+                        [(field_search, '=', value)])
                     if field_id:
                         field_id = field_id[0]
                     else:
                         error_value_not_found(field_search, value)
-                    xml_str = _get_xml_id(field_id, relation_model_str, ir_model_data_obj)
+                    xml_str = _get_xml_id(
+                        field_id, relation_model_str, ir_model_data_obj)
                     xml_id_str = xml_id_str + xml_str + ','
                 return xml_id_str[:-1]
     elif tipo in ('function', 'related', 'property'):
         return value
 
+
 def read_csv(csv_files, oerp):
-    for csv_name in csv_files: 
+    for csv_name in csv_files:
         print csv_name
         lines = csv.reader(open(csv_name))
         field_names = lines.next()
-        field_names.remove('model') # field name model deleted
+        field_names.remove('model')  # field name model deleted
         fields_type = lines.next()
-        fields_type.pop(1) # type model deleted
+        fields_type.pop(1)  # type model deleted
 
         ir_model_data_obj = oerp.get('ir.model.data')
 
@@ -148,40 +162,44 @@ def read_csv(csv_files, oerp):
             datas.append(line)
         for data in datas:
             for i in xrange(0, len(field_names)):
-                #Preguntar aqui de que modo viene la informacion para poder buscar el xml_id que
-                #le corresponde
+                # Preguntar aqui de que modo viene la informacion para poder buscar el xml_id que
+                # le corresponde
                 if data[i]:
                     field = field_names[i]
                     field = field.split(':')[0]
                     if field not in ('id', 'model'):
                         tipo = get_field_type(field, model_obj)
-                        xml_id = transform_csv_info(field, tipo, fields_type[i], data[i], model_obj,
-                                ir_model_data_obj, oerp)
+                        xml_id = transform_csv_info(
+                            field, tipo, fields_type[i], data[i], model_obj,
+                            ir_model_data_obj, oerp)
                         data[i] = xml_id
 
-        #print datas
-        result, rows, warning_msg, dummy = model_obj.import_data(field_names, datas, mode='init', current_module='__export__')
+        # print datas
+        result, rows, warning_msg, dummy = model_obj.import_data(
+            field_names, datas, mode='init', current_module='__export__')
         #print [result, rows, warning_msg, dummy]
         if result < 0:
             # Report failed import and abort module install
-            raise Exception(('Module loading %s failed: file %s could not be processed:\n %s') %
-                    ('', csv_name, warning_msg))
+            raise Exception(
+                ('Module loading %s failed: file %s could not be processed:\n %s') %
+                ('', csv_name, warning_msg))
         else:
             print "It's OK\n"
 
+
 def main(config, opts):
     #print_values(config, opts)
-    #exit()
+    # exit()
     values = config.values('__main__')
 
-    #Extracting parameters in variables
+    # Extracting parameters in variables
     for var in variables:
-        exec("%s = values.get('%s')" % (var,var))
+        exec("%s = values.get('%s')" % (var, var))
 
     oerp = oerplib.OERP(server=server, port=port, timeout=timeout)
-    admin_brw = oerp.login(user=user, passwd=passwd , database=database)
+    admin_brw = oerp.login(user=user, passwd=passwd, database=database)
 
-    read_csv(csv, oerp) 
+    read_csv(csv, oerp)
 
 if __name__ == '__main__':
 
