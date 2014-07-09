@@ -1,0 +1,4 @@
+id,model,name
+str,str,str
+hr_employee_category_001,hr.employee.category,categoria1
+hr_employee_category_002,hr.employee.category,categoria2

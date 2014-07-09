@@ -45,7 +45,9 @@ def print_values(config, opts):
             print "%s option has default value: %s" % (opt, option.default)
 
 def get_field_type(field, model_obj):
-    return model_obj.__dict__['_browse_class'].__dict__['__osv__'].get('columns').get(field).__dict__.get('type')
+    return model_obj.__dict__['_browse_class'].\
+            __dict__['__osv__'].get('columns').get(field).\
+            __dict__.get('type')
 
 def _get_xml_id(field_id, relation_model_str, ir_model_data_obj):
     """
@@ -90,7 +92,7 @@ def transform_csv_info(field, tipo, csv_type, value, model_obj, ir_model_data_ob
         return value
     elif tipo in ('char', 'binary', 'float', 'text', 'selection', 'reference'):
         return value
-    elif tipo == 'many2one':
+    elif tipo in ('many2one'):
         csv_type = csv_type.split(';')
         if csv_type[0] == 'ref':
             return value
@@ -99,18 +101,43 @@ def transform_csv_info(field, tipo, csv_type, value, model_obj, ir_model_data_ob
             relation_model_str = model_obj.__dict__['_browse_class'].\
                     __dict__['__osv__'].get('columns').get(field).__dict__.get('relation')
             relation_model_obj = oerp.get(relation_model_str)
-            field_id = relation_model_obj.search([(field_search,'=',value)])[0]
+            field_id = relation_model_obj.search([(field_search,'=',value)])
+            if field_id:
+                field_id = field_id[0]
+            else:
+                print "Field %s: An associated value was not found, Value %s"%(field_search,value)
+                exit()
             xml_id_str = _get_xml_id(field_id, relation_model_str, ir_model_data_obj)
             return xml_id_str
-    elif tipo == 'one2many':
-        return value
     elif tipo == 'many2many':
+        csv_type = csv_type.split(';')
+        if csv_type[0] == 'ref':
+            return value
+        elif csv_type[0] == 'search':
+            field_search = csv_type[1]
+            relation_model_str = model_obj.__dict__['_browse_class'].\
+                    __dict__['__osv__'].get('columns').get(field).__dict__.get('relation')
+            relation_model_obj = oerp.get(relation_model_str)
+            values = value.split(';')
+            xml_id_str = ''
+            for value in values:
+                field_id = relation_model_obj.search([(field_search,'=',value)])
+                if field_id:
+                    field_id = field_id[0]
+                else:
+                    print "Field %s: An associated value was not found, Value %s"%(field_search,value)
+                    exit()
+                xml_str = _get_xml_id(field_id, relation_model_str, ir_model_data_obj)
+                xml_id_str = xml_id_str + xml_str + ','
+            return xml_id_str[:-1]
+    elif tipo == 'one2many':
         return value
     elif tipo in ('function', 'related', 'property'):
         return value
 
 def read_csv(csv_files, oerp):
     for csv_name in csv_files: 
+        print csv_name
         lines = csv.reader(open(csv_name))
         field_names = lines.next()
         field_names.remove('model') # field name model deleted
@@ -141,10 +168,10 @@ def read_csv(csv_files, oerp):
                                 ir_model_data_obj, oerp)
                         data[i] = xml_id
 
-
         #pdb.set_trace()
         print datas
         print model_obj.import_data(field_names, datas, mode='init', current_module='__export__')
+        print ""
 
 def main(config, opts):
     #print_values(config, opts)
