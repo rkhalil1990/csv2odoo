@@ -48,21 +48,19 @@ def read_csv(csv_files, oerp):
     for csv_name in csv_files: 
         lines = csv.reader(open(csv_name))
         field_names = lines.next()
-        field_names.remove('model')
+        field_names.remove('model') # field name model deleted
         fields_type = lines.next()
+        fields_type.pop(1) # type model deleted
 
         ir_model_data_obj = oerp.get('ir.model.data')
 
         datas = []
 
         for line in lines:
-            xml_id = line.pop(0)
-            model_str = line.pop(0)
+            model_str = line.pop(1)
             model_obj = oerp.get(model_str)
 
-            #pdb.set_trace()
-
-            line.insert(0, xml_id) 
+            pdb.set_trace()
             datas.append(line)
 
         for field in field_names:
