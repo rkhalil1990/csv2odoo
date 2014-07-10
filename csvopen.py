@@ -161,7 +161,7 @@ def read_csv(csv_files, oerp):
 
             datas.append(line)
         for data in datas:
-            for i in xrange(0, len(field_names)):
+            for i in xrange(0, len(data)):
                 # Preguntar aqui de que modo viene la informacion para poder buscar el xml_id que
                 # le corresponde
                 if data[i]:
@@ -174,7 +174,7 @@ def read_csv(csv_files, oerp):
                             ir_model_data_obj, oerp)
                         data[i] = xml_id
 
-        # print datas
+        #print datas
         result, rows, warning_msg, dummy = model_obj.import_data(
             field_names, datas, mode='init', current_module='__export__')
         #print [result, rows, warning_msg, dummy]
