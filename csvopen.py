@@ -161,30 +161,47 @@ def read_csv(csv_files, oerp):
 
             datas.append(line)
         for data in datas:
-            for i in xrange(0, len(data)):
-                # Preguntar aqui de que modo viene la informacion para poder buscar el xml_id que
-                # le corresponde
-                if data[i]:
-                    field = field_names[i]
-                    field = field.split(':')[0]
-                    if field not in ('id', 'model'):
-                        tipo = get_field_type(field, model_obj)
-                        xml_id = transform_csv_info(
-                            field, tipo, fields_type[i], data[i], model_obj,
-                            ir_model_data_obj, oerp)
-                        data[i] = xml_id
+            fd = field_names[:]
+            dt = data[:]
+            aux = 0
+            for i in range(0, len(field_names)):
+                field = field_names[i]
+                field = field.split(':')[0]
+                if field not in ('id', 'model'):
+                    tipo = get_field_type(field, model_obj)
+                else:
+                    continue
 
-        #print datas
-        result, rows, warning_msg, dummy = model_obj.import_data(
-            field_names, datas, mode='init', current_module='__export__')
-        #print [result, rows, warning_msg, dummy]
-        if result < 0:
-            # Report failed import and abort module install
-            raise Exception(
-                ('Module loading %s failed: file %s could not be processed:\n %s') %
-                ('', csv_name, warning_msg))
-        else:
-            print "It's OK\n"
+                if len(data) <= i: #If information is null, it's add a empty string
+                    if tipo == 'one2many':
+                        fd.remove(field_names[i])
+                    continue
+
+                #If information is not null, it's search xml id
+                if data[i]:
+                    xml_id = transform_csv_info(
+                        field, tipo, fields_type[i], data[i], model_obj,
+                        ir_model_data_obj, oerp)
+                    data[i] = xml_id
+                    dt[i - aux] = xml_id
+                else:
+                    if tipo == 'one2many':
+                        fd.remove(field_names[i])
+                        dt.pop(i - aux)
+                        aux += 1
+
+            result, rows, warning_msg, dummy = model_obj.import_data(
+                fd, [dt], mode='init', current_module='__export__')
+            #print [result, rows, warning_msg, dummy]
+            if result < 0:
+                pdb.set_trace()
+                # Report failed import and abort module install
+                raise Exception(
+                    ('Module loading %s failed: file %s could not be processed:\n %s') %
+                    ('', csv_name, warning_msg))
+            else:
+                print data
+                print "It's OK\n"
 
 
 def main(config, opts):
