@@ -103,6 +103,7 @@ def transform_csv_info(field, tipo, csv_type, value, model_obj, ir_model_data_ob
         # Revisar correcta sintaxis
         return value
     elif tipo in ('char', 'binary', 'float', 'text', 'selection', 'reference'):
+        #TO DO
         return value
     elif tipo in ('many2one', 'many2many', 'one2many'):
         csv_type = csv_type.split(';')
@@ -139,10 +140,12 @@ def transform_csv_info(field, tipo, csv_type, value, model_obj, ir_model_data_ob
                     xml_id_str = xml_id_str + xml_str + ','
                 return xml_id_str[:-1]
     elif tipo in ('function', 'related', 'property'):
+        #TO DO
         return value
 
 
 def read_csv(csv_files, oerp):
+    
     for csv_name in csv_files:
         print csv_name
         lines = csv.reader(open(csv_name))
