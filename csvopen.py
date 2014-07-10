@@ -161,30 +161,39 @@ def read_csv(csv_files, oerp):
 
             datas.append(line)
         for data in datas:
-            fd = field_names[:]
-            dt = data[:]
-            aux = 0
+            fd = field_names[:] #Copy of field_names
+            dt = data[:] #Copy of data file
+            aux = 0 #when a one2many field is removed, the dt array 
+                    #should be assigned subtracting this aux to 'i' index
             for i in range(0, len(field_names)):
+
+                #extracting real field name
                 field = field_names[i]
                 field = field.split(':')[0]
-                if field not in ('id', 'model'):
+
+                # id is not considering because it's xml id
+                if field not in ('id'):
                     tipo = get_field_type(field, model_obj)
                 else:
                     continue
 
-                if len(data) <= i: #If information is null, it's add a empty string
+                if len(data) <= i:
+                    #when a one2many field is empty. Must be removed from 
+                    #the list of fields to consider when will import the data.
                     if tipo == 'one2many':
                         fd.remove(field_names[i])
                     continue
 
-                #If information is not null, it's search xml id
                 if data[i]:
+                    #If information is not null, it's search xml id
                     xml_id = transform_csv_info(
                         field, tipo, fields_type[i], data[i], model_obj,
                         ir_model_data_obj, oerp)
                     data[i] = xml_id
                     dt[i - aux] = xml_id
                 else:
+                    #when a one2many field is empty. Must be removed from 
+                    #the list of fields to consider when will import the data.
                     if tipo == 'one2many':
                         fd.remove(field_names[i])
                         dt.pop(i - aux)
@@ -192,7 +201,7 @@ def read_csv(csv_files, oerp):
 
             result, rows, warning_msg, dummy = model_obj.import_data(
                 fd, [dt], mode='init', current_module='__export__')
-            #print [result, rows, warning_msg, dummy]
+
             if result < 0:
                 pdb.set_trace()
                 # Report failed import and abort module install
