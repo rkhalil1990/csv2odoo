@@ -1,3 +1,15 @@
+WARNING!
+--------
+
+Para mejores prácticas es recomendable llenar los campos one2many desde el modelo relacional.
+Por ejemplo, si quisieramos agregar líneas a una factura, en vez de crear las líneas y luego
+asignarlas desde la factura, podremos crear la factura primero, y luego desde las líneas
+asignarle un invoice_id según sea el caso.
+
+Esto se debe a que, si quisieramos correr nuestro script y hemos cambiado el valor de un
+campo one2many en algún csv, y hemos asignado vacio al valor, los valores anteriores
+no se borrarán.
+
 Correr el ejemplo
 -----------------
 
