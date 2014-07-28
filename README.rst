@@ -16,7 +16,7 @@ Correr el ejemplo
 - Instalar módulos: módulo **account_accountant** (Configurar las data contable, Año fiscal
   y periodos para el año 2014) e instalar módulo **hr**.
 - Configurar: nombre de BD, usuario y password en archivo config.ini (Dejar variable csv como está).
-- Correr el script: **python csvopen.py.**
+- Correr el script: **python csv2odoo.py.**
 
 TO DO
 -----
