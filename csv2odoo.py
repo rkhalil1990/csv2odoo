@@ -24,8 +24,10 @@ class MySchema(schema.Schema):
         fatal=True,
         help='Name of the database to connect to')
     user = schema.StringOption(
+        fatal=True,
         help='Username to use for the connection')
     passwd = schema.StringOption(
+        fatal=True,
         help='Password to use fot the connection')
     csv = schema.ListOption(
         item=schema.StringOption(),
