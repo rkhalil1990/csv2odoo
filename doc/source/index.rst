@@ -16,6 +16,15 @@ Use of the csv2odoo tool consists of three basic steps:
     #) Add the path to the csv files to be uploaded. 
 #. Run the script.
 
+Download and Install
+====================
+
+.. toctree::
+   :numbered:
+   :maxdepth: 3
+
+   download_and_install_instructions
+
 Documentation
 =============
 
@@ -23,10 +32,15 @@ Documentation
    :numbered:
    :maxdepth: 3
 
-   download_and_install_instructions
    creating_csv_files
    configuring_parameters
    run_script
+
+Example
+=======
+
+License
+=======
 
 Indices and tables
 ==================

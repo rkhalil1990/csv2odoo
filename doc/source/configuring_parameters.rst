@@ -4,8 +4,30 @@ Configuring config.ini Parameters
 Introduction
 ------------
 
+The config.ini file contains the parameters to connect to the database and path of csv files to be
+loaded.
+
 Editing config.ini
 ------------------
+
+Example of config.ini
+
+.. code-block :: python
+
+    [__main__]
+    database = name_database
+    user = admin
+    passwd = 12345
+    csv = ~/invoice.csv
+          ~/invoice_lines.csv
+
+The parameters is in each line with its value. In example, the name of database is `name_database`.
+the database user is `admin` and its password `12345`.
+
+The csv fiels is listed by order. By example, the csv with invoice must be loaded before
+that csv with invoice lines, since, it is preferable to fill a many2one field than a one2many
+field. From invoice_lines must be filled the invoice_id field, referring to the invoice to which it
+belongs.
 
 Parameters Required
 ~~~~~~~~~~~~~~~~~~~
