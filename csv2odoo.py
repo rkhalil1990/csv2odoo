@@ -227,8 +227,13 @@ def main(config, opts):
     for var in variables:
         exec("%s = values.get('%s')" % (var, var))
 
+    print "***Connecting to server %s:%s..\n." % (server,port)
     oerp = oerplib.OERP(server=server, port=port, timeout=timeout)
+    print "***Connection to the server %s:%s was successful.\n" % (server,port)
+
+    print "***Acceding to the database '%s' with user.\n" % (database)
     admin_brw = oerp.login(user=user, passwd=passwd, database=database)
+    print "***Access to the instance was successful.\n"
 
     read_csv(csv, oerp)
 
