@@ -1,6 +1,7 @@
 csv2odoo
 ========
 
+
 csv2odoo is a webservice that handles uploading CSV data to your Odoo database.
 
 Use of the csv2odoo tool consists of three basic steps: 
@@ -10,6 +11,10 @@ Use of the csv2odoo tool consists of three basic steps:
     #) Configuring the connection parameter to the database 
     #) Add the path to the csv files to be uploaded. 
 #. Run the script.
+
+.. note ::
+
+    Don't forget reading the documentation in docs/ folder.
 
 ---
 
@@ -22,6 +27,10 @@ El uso de la herramienta csv2odoo consiste en tres pasos básicos:
    #) Configurar los parámetro de conexión a la base de datos.
    #) Agregar la ruta correspondiente a los archivos csv a ser subidos.
 #. Correr el script
+
+.. note ::
+
+    No olvides leer la documentación disponible en la carpeta docs/
 
 WARNING!
 --------
