@@ -36,8 +36,8 @@ Documentation
    configuring_parameters
    run_script
 
-Example
-=======
+Csv Demo - Example
+==================
 
 .. toctree::
    :numbered:
