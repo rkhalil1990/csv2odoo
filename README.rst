@@ -14,7 +14,7 @@ Use of the csv2odoo tool consists of three basic steps:
 
 .. note ::
 
-    Don't forget reading the documentation in docs/ folder.
+    Don't forget reading the documentation in docs/ folder!!
 
 ---
 
@@ -30,7 +30,7 @@ El uso de la herramienta csv2odoo consiste en tres pasos básicos:
 
 .. note ::
 
-    No olvides leer la documentación disponible en la carpeta docs/
+    ¡No olvides leer la documentación disponible en la carpeta docs/!
 
 WARNING!
 --------
