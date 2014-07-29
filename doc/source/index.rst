@@ -39,6 +39,13 @@ Documentation
 Example
 =======
 
+.. toctree::
+   :numbered:
+   :maxdepth: 3
+
+   example 
+
+
 License
 =======
 
