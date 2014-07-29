@@ -57,7 +57,7 @@ def get_field_type(field, model_obj):
 def _get_xml_id(field_id, relation_model_str, ir_model_data_obj):
     """
     Returns xml id of object to get
-    @param field_id: id of the object to which you want to find the xml id 
+    @param field_id: id of the object to which you want to find the xml id
     @param relation_model_str: model of the object to which you want to find the xml id
     @param ir_model_data_obj: object of ids xml table
     """
@@ -147,7 +147,7 @@ def transform_csv_info(field, tipo, csv_type, value, model_obj, ir_model_data_ob
 
 
 def read_csv(csv_files, oerp):
-    
+
     for csv_name in csv_files:
         print csv_name
         lines = csv.reader(open(csv_name))
@@ -168,7 +168,7 @@ def read_csv(csv_files, oerp):
         for data in datas:
             fd = field_names[:] #Copy of field_names
             dt = data[:] #Copy of data file
-            aux = 0 #when a one2many field is removed, the dt array 
+            aux = 0 #when a one2many field is removed, the dt array
                     #should be assigned subtracting this aux to 'i' index
             for i in range(0, len(field_names)):
 
@@ -183,7 +183,7 @@ def read_csv(csv_files, oerp):
                     continue
 
                 if len(data) <= i:
-                    #when a one2many field is empty. Must be removed from 
+                    #when a one2many field is empty. Must be removed from
                     #the list of fields to consider when will import the data.
                     if tipo == 'one2many':
                         fd.remove(field_names[i])
@@ -197,7 +197,7 @@ def read_csv(csv_files, oerp):
                     data[i] = xml_id
                     dt[i - aux] = xml_id
                 else:
-                    #when a one2many field is empty. Must be removed from 
+                    #when a one2many field is empty. Must be removed from
                     #the list of fields to consider when will import the data.
                     if tipo == 'one2many':
                         fd.remove(field_names[i])
