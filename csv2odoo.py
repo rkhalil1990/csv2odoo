@@ -208,7 +208,6 @@ def read_csv(csv_files, oerp):
                 fd, [dt], mode='init', current_module='__export__')
 
             if result < 0:
-                pdb.set_trace()
                 # Report failed import and abort module install
                 raise Exception(
                     ('Module loading %s failed: file %s could not be processed:\n %s') %
