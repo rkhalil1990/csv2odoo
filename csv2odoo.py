@@ -5,6 +5,7 @@ import oerplib
 import libxml2
 import csv
 import pdb
+import argparse
 
 variables = ['server', 'port', 'timeout', 'database', 'user', 'passwd', 'csv']
 
@@ -33,6 +34,16 @@ class MySchema(schema.Schema):
         item=schema.StringOption(),
         help='CSV File to read')
 
+def arguments():
+    """
+    arguments method is responsible for extracting arguments required by the user
+    """
+    parser = argparse.ArgumentParser() 
+    parser.add_argument("-c", "--config", help="Config.ini Path", default='./config.ini')
+    args = parser.parse_args()
+
+    config = args.config
+    return config
 
 def print_values(config, opts):
 
@@ -239,6 +250,7 @@ def main(config, opts):
 
 if __name__ == '__main__':
 
-    glue = configglue(MySchema, ['config.ini'])
+    path = arguments()
+    glue = configglue(MySchema, [path])
 
     main(glue.schema_parser, glue.options)
