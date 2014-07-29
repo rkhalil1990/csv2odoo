@@ -113,7 +113,4 @@ Example:
     For one2many fields is equal to many2one or many2many. But, not recommended for use
 
 
-.. elif tipo in ('function', 'related', 'property'):
-
-Examples
---------
+.. ('function', 'related', 'property'):
