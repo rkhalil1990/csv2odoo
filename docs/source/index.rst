@@ -45,6 +45,14 @@ Csv Demo - Example
 
    example 
 
+CSV templates for Odoo/OpenERP
+==============================
+
+.. toctree::
+   :numbered:
+   :maxdepth: 3
+
+   csv_template
 
 License
 =======
