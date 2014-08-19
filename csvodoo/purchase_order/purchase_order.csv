@@ -1,4 +1,0 @@
-id,model,partner_ref,invoice_method,invoiced,payment_term_id:id,minimum_planned_date,shipped,validator:id,date_approve,fiscal_position:id,origin,partner_id:id,location_id:id,pricelist_id:id
-str,str,str,str,str,search;name,str,str,search;name,str,search;name,str,search;name,search;name,search;name
-
-
