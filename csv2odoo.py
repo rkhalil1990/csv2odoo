@@ -161,10 +161,11 @@ def read_csv(csv_files, oerp):
         datas = []
 
         for line in lines:
-            model_str = line.pop(1)
-            model_obj = oerp.get(model_str)
+            if line:
+                model_str = line.pop(1)
+                model_obj = oerp.get(model_str)
+                datas.append(line)
 
-            datas.append(line)
         for data in datas:
             fd = field_names[:] #Copy of field_names
             dt = data[:] #Copy of data file
