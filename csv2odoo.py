@@ -53,6 +53,22 @@ def get_field_type(field, model_obj):
         __dict__['__osv__'].get('columns').get(field).\
         __dict__.get('type')
 
+def _get_id_from_xml_id(xml_id, relation_model_str, ir_model_data_obj):
+    """
+    Returns id of object to get
+    @param xml_id: xml id of the object to which you want to find the id
+    @param relation_model_str: model of the object to which you want to find the xml id
+    @param ir_model_data_obj: object of ids xml table
+    """
+    xml_id_list = ir_model_data_obj.search(
+        [('name', '=', xml_id), ('module', '=', '__export__')])
+    if xml_id_list:
+        res_id = ir_model_data_obj.read(xml_id_list[0], ['res_id'])
+        res_id = [res_id.get('res_id')]
+    else:
+        res_id = []
+    return res_id
+
 
 def _get_xml_id(field_id, relation_model_str, ir_model_data_obj):
     """
@@ -204,7 +220,11 @@ def read_csv(csv_files, oerp):
                         dt.pop(i - aux)
                         aux += 1
 
-            #pdb.set_trace()
+            models_wit_errors = ['purchase.order']
+            if model_str in models_wit_errors:
+                res_id_xml = _get_id_from_xml_id(dt[0], '__export__', ir_model_data_obj)
+                if res_id_xml:
+                    model_obj.unlink(res_id_xml)
 
             result, rows, warning_msg, dummy = model_obj.import_data(
                 fd, [dt], mode='init', current_module='__export__')
