@@ -172,7 +172,6 @@ def read_csv(csv_files, oerp):
             aux = 0 #when a one2many field is removed, the dt array
                     #should be assigned subtracting this aux to 'i' index
             for i in range(0, len(field_names)):
-
                 #extracting real field name
                 field = field_names[i]
                 field = field.split(':')[0]
@@ -205,8 +204,23 @@ def read_csv(csv_files, oerp):
                         dt.pop(i - aux)
                         aux += 1
 
+            #pdb.set_trace()
+
             result, rows, warning_msg, dummy = model_obj.import_data(
                 fd, [dt], mode='init', current_module='__export__')
+
+
+            #~i = 0
+            #~for f in fd:
+            #~    n = f.find(':id')
+            #~    if n > -1:
+            #~        f = f[:n]
+            #~        fd[i] = f
+            #~    i+=1
+
+
+            #~result = model_obj.load(fd, [tuple(dt)])
+            #~pdb.set_trace()
 
             if result < 0:
                 # Report failed import and abort module install
