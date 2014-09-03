@@ -7,6 +7,7 @@ import csv
 import pdb
 
 variables = ['server', 'port', 'timeout', 'database', 'user', 'passwd', 'csv']
+models_with_errors = ['purchase.order']
 
 
 class MySchema(schema.Schema):
@@ -110,6 +111,15 @@ def error_value_not_found(field_search, value):
     raise Exception(
         ('Field "%s": An associated value was not found, Value "%s"') %
         (field_search, value))
+
+def verify_module(xml_id_str, model_str, model_obj, ir_model_data_obj):
+    res =  False
+    if model_str in models_with_errors:
+        res_id_xml = _get_id_from_xml_id(xml_id_str, '__export__', ir_model_data_obj)
+        if res_id_xml:
+            model_obj.unlink(res_id_xml)
+            res = True
+    return res
 
 
 def transform_csv_info(field, tipo, csv_type, value, model_obj, ir_model_data_obj, oerp):
@@ -220,15 +230,13 @@ def read_csv(csv_files, oerp):
                         dt.pop(i - aux)
                         aux += 1
 
-            models_wit_errors = ['purchase.order']
-            if model_str in models_wit_errors:
-                res_id_xml = _get_id_from_xml_id(dt[0], '__export__', ir_model_data_obj)
-                if res_id_xml:
-                    model_obj.unlink(res_id_xml)
+            verify_module(dt[0], model_str, model_obj, ir_model_data_obj)
 
             result, rows, warning_msg, dummy = model_obj.import_data(
                 fd, [dt], mode='init', current_module='__export__')
 
+            #Using base_import module instead of import_data for security
+            #To comment call to import_data
 
             #~i = 0
             #~for f in fd:
@@ -237,7 +245,6 @@ def read_csv(csv_files, oerp):
             #~        f = f[:n]
             #~        fd[i] = f
             #~    i+=1
-
 
             #~result = model_obj.load(fd, [tuple(dt)])
             #~pdb.set_trace()
