@@ -1,0 +1,2 @@
+id,model,partner_id:id,location_id:id,pricelist_id:id
+str,str,search;name,search;name,search;name

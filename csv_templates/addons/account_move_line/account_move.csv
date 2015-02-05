@@ -1,0 +1,2 @@
+id,model,journal_id:id,period_id:id,date,ref
+str,str,search;name,search;code,str,str
