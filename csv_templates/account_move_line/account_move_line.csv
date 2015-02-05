@@ -1,2 +1,0 @@
-id,model,name,date,account_id:id,ref,partner_id:id,move_id:id,debit,credit,journal_id:id,period_id:id,account_tax_id
-str,str,str,str,search;code,str,search;name,ref,str,str,search;name,search;name,search;code

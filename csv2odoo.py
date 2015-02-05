@@ -7,6 +7,7 @@ import csv
 import pdb
 
 variables = ['server', 'port', 'timeout', 'database', 'user', 'passwd', 'csv']
+models_with_errors = ['purchase.order']
 
 
 class MySchema(schema.Schema):
@@ -53,6 +54,22 @@ def get_field_type(field, model_obj):
         __dict__['__osv__'].get('columns').get(field).\
         __dict__.get('type')
 
+def _get_id_from_xml_id(xml_id, relation_model_str, ir_model_data_obj):
+    """
+    Returns id of object to get
+    @param xml_id: xml id of the object to which you want to find the id
+    @param relation_model_str: model of the object to which you want to find the xml id
+    @param ir_model_data_obj: object of ids xml table
+    """
+    xml_id_list = ir_model_data_obj.search(
+        [('name', '=', xml_id), ('module', '=', '__export__')])
+    if xml_id_list:
+        res_id = ir_model_data_obj.read(xml_id_list[0], ['res_id'])
+        res_id = [res_id.get('res_id')]
+    else:
+        res_id = []
+    return res_id
+
 
 def _get_xml_id(field_id, relation_model_str, ir_model_data_obj):
     """
@@ -94,6 +111,15 @@ def error_value_not_found(field_search, value):
     raise Exception(
         ('Field "%s": An associated value was not found, Value "%s"') %
         (field_search, value))
+
+def verify_module(xml_id_str, model_str, model_obj, ir_model_data_obj):
+    res =  False
+    if model_str in models_with_errors:
+        res_id_xml = _get_id_from_xml_id(xml_id_str, '__export__', ir_model_data_obj)
+        if res_id_xml:
+            model_obj.unlink(res_id_xml)
+            res = True
+    return res
 
 
 def transform_csv_info(field, tipo, csv_type, value, model_obj, ir_model_data_obj, oerp):
@@ -161,17 +187,17 @@ def read_csv(csv_files, oerp):
         datas = []
 
         for line in lines:
-            model_str = line.pop(1)
-            model_obj = oerp.get(model_str)
+            if line:
+                model_str = line.pop(1)
+                model_obj = oerp.get(model_str)
+                datas.append(line)
 
-            datas.append(line)
         for data in datas:
             fd = field_names[:] #Copy of field_names
             dt = data[:] #Copy of data file
             aux = 0 #when a one2many field is removed, the dt array
                     #should be assigned subtracting this aux to 'i' index
             for i in range(0, len(field_names)):
-
                 #extracting real field name
                 field = field_names[i]
                 field = field.split(':')[0]
@@ -204,8 +230,24 @@ def read_csv(csv_files, oerp):
                         dt.pop(i - aux)
                         aux += 1
 
+            verify_module(dt[0], model_str, model_obj, ir_model_data_obj)
+
             result, rows, warning_msg, dummy = model_obj.import_data(
                 fd, [dt], mode='init', current_module='__export__')
+
+            #Using base_import module instead of import_data for security
+            #To comment call to import_data
+
+            #~i = 0
+            #~for f in fd:
+            #~    n = f.find(':id')
+            #~    if n > -1:
+            #~        f = f[:n]
+            #~        fd[i] = f
+            #~    i+=1
+
+            #~result = model_obj.load(fd, [tuple(dt)])
+            #~pdb.set_trace()
 
             if result < 0:
                 # Report failed import and abort module install

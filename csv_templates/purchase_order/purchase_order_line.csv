@@ -1,2 +1,0 @@
-id,model,order_id:id,product_id:id,name,date_planned,product_qty,price_unit,taxes_id
-str,str,ref,search;name,str,str,str,str,search;name
